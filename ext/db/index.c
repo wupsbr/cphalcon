@@ -80,7 +80,6 @@ PHALCON_INIT_CLASS(Phalcon_Db_Index){
  *
  * @param string $indexName
  * @param array $columns
- * @param string|null $type
  */
 PHP_METHOD(Phalcon_Db_Index, __construct){
 

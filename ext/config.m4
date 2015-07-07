@@ -1,5 +1,13 @@
 PHP_ARG_ENABLE(phalcon, whether to enable phalcon framework, [ --enable-phalcon   Enable phalcon framework])
 
+AC_MSG_CHECKING([Include non-free minifiers])
+if test "$PHP_NON_FREE" = "yes"; then
+	AC_DEFINE([PHALCON_NON_FREE], [1], [Whether non-free minifiers are available])
+	AC_MSG_RESULT([yes, css and js])
+else
+	AC_MSG_RESULT([no])
+fi
+
 if test "$PHP_PHALCON" = "yes"; then
 	AC_DEFINE(HAVE_PHALCON, 1, [Whether you have Phalcon Framework])
 	phalcon_sources="phalcon.c \
@@ -363,6 +371,13 @@ psr/log/loggertrait.c \
 psr/log/loglevel.c \
 psr/log/nulllogger.c \
 registry.c"
+
+	AC_MSG_CHECKING([Include non-free minifiers])
+	if test "$PHP_NON_FREE" = "yes"; then
+		phalcon_sources="$phalcon_sources assets/filters/jsminifier.c assets/filters/cssminifier.c "
+	else
+		phalcon_sources="$phalcon_sources assets/filters/nojsminifier.c assets/filters/nocssminifier.c "
+	fi
 
 	PHP_NEW_EXTENSION(phalcon, $phalcon_sources, $ext_shared)
 	PHP_ADD_EXTENSION_DEP([phalcon], [spl])

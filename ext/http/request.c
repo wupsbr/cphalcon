@@ -2034,6 +2034,10 @@ PHP_METHOD(Phalcon_Http_Request, getBasicAuth){
 	if (!auth_user) {
 		RETURN_NULL();
 	}
+
+	if (!auth_password) {
+		auth_password = "";
+	}	
 	
 	array_init_size(return_value, 2);
 	add_assoc_stringl_ex(return_value, SS("username"), auth_user, strlen(auth_user), 1);

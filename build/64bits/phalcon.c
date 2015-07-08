@@ -17744,10 +17744,10 @@ static PHP_METHOD(Phalcon_Filter, add){
 
 	PHALCON_ENSURE_IS_STRING(name);
 	
-	if (Z_TYPE_PP(handler) != IS_OBJECT) {
-		PHALCON_THROW_EXCEPTION_STRW(phalcon_filter_exception_ce, "Filter must be an object");
-		return;
-	}
+  if (Z_TYPE_PP(handler) != IS_OBJECT && !phalcon_is_callable(*handler TSRMLS_CC)) {
+    PHALCON_THROW_EXCEPTION_STRW(phalcon_filter_exception_ce, "Filter must be an object or callable");
+    return;
+  }
 	
 	phalcon_update_property_array(this_ptr, SL("_filters"), *name, *handler TSRMLS_CC);
 	RETURN_THISW();
@@ -17848,9 +17848,17 @@ static PHP_METHOD(Phalcon_Filter, _sanitize){
 	phalcon_fetch_params(1, 2, 0, &value, &filter);
 	
 	PHALCON_OBS_VAR(filters);
-	phalcon_read_property_this(&filters, this_ptr, SL("_filters"), PH_NOISY TSRMLS_CC);
-	if (phalcon_array_isset_fetch(&filter_object, filters, filter) && Z_TYPE_P(filter_object) == IS_OBJECT) {
+  phalcon_read_property_this(&filters, this_ptr, SL("_filters"), PH_NOISY TSRMLS_CC);
+  if (phalcon_array_isset_fetch(&filter_object, filters, filter) && (Z_TYPE_P(filter_object) == IS_OBJECT || phalcon_is_callable(filter_object TSRMLS_CC))) {
 	
+    if (phalcon_is_callable(filter_object TSRMLS_CC)) {
+      PHALCON_INIT_VAR(arguments);
+      array_init_size(arguments, 1);
+      phalcon_array_append(&arguments, value, 0);
+      PHALCON_CALL_USER_FUNC_ARRAY(return_value, filter_object, arguments);
+      RETURN_MM();
+    }
+
 		if (instanceof_function(Z_OBJCE_P(filter_object), zend_ce_closure TSRMLS_CC)) {
 			PHALCON_INIT_VAR(arguments);
 			array_init_size(arguments, 1);
@@ -23048,7 +23056,7 @@ static PHP_METHOD(Phalcon_Validation, setDefaultMessages)
 	phalcon_fetch_params(0, 0, 0, &messages);
 
 	if (messages && Z_TYPE_P(messages) != IS_NULL && Z_TYPE_P(messages) != IS_ARRAY) {
-		zend_throw_exception_ex(phalcon_validation_exception_ce, 0 TSRMLS_CC, "Messages must be an array");
+		PHALCON_THROW_EXCEPTION_STR(phalcon_validation_exception_ce, "Messages must be an array");
 		return;
 	}
 
@@ -29642,7 +29650,9 @@ static PHP_METHOD(Phalcon_Assets_Resource, getRealTargetPath){
 
 
 
-
+#ifdef PHALCON_NON_FREE
+#else
+#endif
 
 
 zend_class_entry *phalcon_assets_filters_cssmin_ce;
@@ -29716,6 +29726,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifdef PHALCON_NON_FREE
 
 #include <ext/standard/php_smart_str.h>
 
@@ -29954,10 +29965,14 @@ static int phalcon_cssmin(zval *return_value, zval *style TSRMLS_DC) {
 
 	return SUCCESS;
 }
+#endif
 
 
 
 
+#ifdef PHALCON_NON_FREE
+#else
+#endif
 
 
 zend_class_entry *phalcon_assets_filters_jsmin_ce;
@@ -30020,6 +30035,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifdef PHALCON_NON_FREE
 
 #include <ext/standard/php_smart_str.h>
 
@@ -30391,11 +30407,14 @@ static int phalcon_jsmin(zval *return_value, zval *script TSRMLS_DC) {
 
 	return SUCCESS;
 }
+#endif
 
 
 
 
-
+#ifdef PHALCON_NON_FREE
+#else
+#endif
 
 zend_class_entry *phalcon_assets_filters_none_ce;
 

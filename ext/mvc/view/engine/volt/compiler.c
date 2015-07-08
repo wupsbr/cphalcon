@@ -671,7 +671,8 @@ PHP_METHOD(Phalcon_Mvc_View_Engine_Volt_Compiler, attributeReader){
 		 * Check if the variable is the loop context
 		 */
 		if (PHALCON_IS_STRING(variable, "loop")) {
-			zval *level = phalcon_fetch_nproperty_this(this_ptr, SL("_foreachLevel"), PH_NOISY TSRMLS_CC);
+			PHALCON_OBS_VAR(level);
+			phalcon_read_property_this(&level, this_ptr, SL("_foreachLevel"), PH_NOISY TSRMLS_CC);
 	
 			PHALCON_CALL_METHOD(&prefix, this_ptr, "getuniqueprefix");
 			PHALCON_SCONCAT_SVVS(expr_code, "$", prefix, level, "loop");
